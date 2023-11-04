@@ -31,6 +31,21 @@ CREATE TABLE [config].[Pipeline_DeltaLoad] (
  [LastProcessedTimestamp] DATETIME2 (7) DEFAULT (getdate()) 
 );
 
+
+--Email Config
+
+CREATE TABLE config.PipelinesEmail_Config (
+ Id int NOT NULL identity Primary Key,
+ SpecCode VARCHAR(20),
+ SpecCodeId int NOT NULL,
+ ToEmail VARCHAR(100) NOT NULL,
+ FrmEmail VARCHAR(50) NOT NULL,
+ CcEmail VARCHAR(100) ,
+ CustomizedMessage VARCHAR(1000) NOT NULL,
+ IsAttachedMent bit default 0,
+ Path  VARCHAR(100) NOT NULL
+  );
+
 -- BO001.sql :Business Outcome 1 - Footboll Config
 INSERT INTO config.Pipelines_Config
 VALUES ('BO001', '[staging].[BO001_Goalscorers]', 'BO001_Goalscorers', 'ASQL', 'SFTP', ' ', 'full', '*', 'sftp', 'csv',0);
@@ -59,28 +74,20 @@ VALUES('BO003', 'BO003_Movies', 'staging.BO003_Movies', 'ABLB', 'ASQL', '', 'ful
 --Delta Load for table2
 DECLARE @last_Inserted_Spec_Code_Id INT;
 INSERT INTO config.Pipelines_Config
-VALUES('BO003', 'BO003_Ratings','staging.BO003_Ratings', 'ABLB', 'ASQL','table_id', 'delta', '*', 'movie-in','',0);
+VALUES('BO003', 'BO003_Ratings','staging.BO003_Ratings', 'ABLB', 'ASQL','Id', 'delta', '*', 'movie-in','',0);
 set @last_Inserted_Spec_Code_Id = (SELECT SCOPE_IDENTITY());
 
 Insert into config.Pipeline_DeltaLoad(SpecCodeId) values (@last_Inserted_Spec_Code_Id)
-set @last_Inserted_Spec_Code_Id=0
-
---Email Config
-
-CREATE TABLE config.PipelinesEmail_Config (
- Id int NOT NULL identity Primary Key,
- SpecCode VARCHAR(20),
- ToEmail VARCHAR(100) NOT NULL,
- FrmEmail VARCHAR(50) NOT NULL,
- CcEmail VARCHAR(100) ,
- CustomizedMessage VARCHAR(1000) NOT NULL,
- IsAttachedMent bit default 0,
- Path  VARCHAR(100) NOT NULL
-  );
-
 
 INSERT INTO config.PipelinesEmail_Config
-VALUES('BO003', 'meetalpa@gmail.com', 'meetalpa@gmail.com', '', 'BO003 has successfully run', 0, '');
+VALUES('BO003', @last_Inserted_Spec_Code_Id 'meetalpa@gmail.com', 'meetalpa@gmail.com', '', 'BO003 has successfully run', 0, '');
+
+set @last_Inserted_Spec_Code_Id=0
+
+
+
+
+
 
 
 
